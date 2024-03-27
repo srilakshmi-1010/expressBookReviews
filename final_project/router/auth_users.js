@@ -2,36 +2,35 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 let books = require("./booksdb.js");
 const regd_users = express.Router();
-
 let users = [];
-
-const isValid = (value)=>{ //returns boolean
-    let userswithsameusername = users.filter((user) => {
-        return user.username === username
-      });
-      if(userswithsameusername.length > 0) {
-        return true;
-      }
-      else {
-        return false;
-        }
-      }
-
-      const authenticatedUser = (username,password)=>{ 
-        let validUsers = users.filter((user)=> {
-          return (user.username === username && user.password === password)
-        });
-        if(validUsers.length > 0) {
-          return true;
-        } 
-        else {
-          return false;
-          }
-        }
+const isValid = (username)=>{ //returns boolean
+//write code to check is the username is valid
+let userswithsameusername = users.filter((user) => {
+  return user.username === username
+});
+if(userswithsameusername.length > 0) {
+  return true;
+}
+else {
+  return false;
+  }
+}
+const authenticatedUser = (username,password)=>{ //returns boolean
+//write code to check if username and password match the one we have in records.
+let validUsers = users.filter((user)=> {
+  return (user.username === username && user.password === password)
+});
+if(validUsers.length > 0) {
+  return true;
+} 
+else {
+  return false;
+  }
+}
 
 //only registered users can login
 regd_users.post("/login", (req,res) => {
-    const username = req.body.username;
+  const username = req.body.username;
   const password = req.body.password;
 
   console.log(users)
@@ -56,7 +55,7 @@ regd_users.post("/login", (req,res) => {
 
 
 // Add a book review
-regd_users.put("/auth/review/:isbn", (req, res) => {
+  regd_users.put("/auth/review/:isbn", (req, res) => {
     const isbn = req.params.isbn;
   let filtered_book = books[isbn]
   if (filtered_book) {
@@ -72,20 +71,19 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
       res.send("Unable to find this ISBN!");
   }
 });
-
 //deleting a book review
 regd_users.delete("/auth/review/:isbn", (req, res) => {
-    const isbn = req.params.isbn;
-    let reviewer = req.session.authorization['username'];
-    let filtered_review = books[isbn]["reviews"];
-    if (filtered_review[reviewer]){
-        delete filtered_review[reviewer];
-        res.send(`Reviews for the ISBN  ${isbn} by user ${reviewer} has been deleted.`);
-    }
-    else{
-        res.send("Can't delete, this review has been posted by a different user already.");
-    }
-  });
+  const isbn = req.params.isbn;
+  let reviewer = req.session.authorization['username'];
+  let filtered_review = books[isbn]["reviews"];
+  if (filtered_review[reviewer]){
+      delete filtered_review[reviewer];
+      res.send(`Reviews for the ISBN  ${isbn} by user ${reviewer} has been deleted.`);
+  }
+  else{
+      res.send("Can't delete, this review has been posted by a different user already.");
+  }
+});
 
 module.exports.authenticated = regd_users;
 module.exports.isValid = isValid;
